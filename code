@@ -13,8 +13,8 @@ const float fallThreshold = 2.5;   // threshold for fall sensor detection
 bool helmetWorn = false;
 
 void setup() {
-  Serial.begin(115200);m
-  sim800.begin(9600); // Initialision
+  Serial.begin(115200);
+  sim800.begin(9600); // Initialization
 
   pinMode(capacitiveSensorPin, INPUT);
   pinMode(relayPin, OUTPUT);
@@ -45,7 +45,7 @@ void loop() {
 
 void sendEmergencyCall() {
   // Initiates a call via the SIM800L module
-  sim800.println("ATD+911;"); //this is currently bulit for the US so we are using the emergency number 911. for other countries you have to chang e the number
+  sim800.println("ATD+911;"); // this is currently built for the US so we are using the emergency number 911. For other countries you have to change the number
   delay(10000);               
   sim800.println("ATH");      // hang up the call
 }
