@@ -2,50 +2,60 @@
 #include <MPU6050.h>
 #include <SoftwareSerial.h>
 
-
 MPU6050 mpu;
-SoftwareSerial sim800(10, 11); 
+SoftwareSerial sim800(10, 11); // TX, RX pins for the SIM800L module
 
-const int capacitiveSensorPin = 2; // this is the sensor for helmet detection
-const int relayPin = 4;            
-const float fallThreshold = 2.5;   // threshold for fall sensor detection
+const int helmetSensorPin = 2;     // capacitive sensor to detect helmet wear
+const int alcoholSensorPin = A0;   // analog alcohol sensor
+const int relayPin = 4;            // controls scooter ignition relay
 
-bool helmetWorn = false;
+const float crashThreshold = 2.5;  // threshold for crash detection (g's)
+const int alcoholThreshold = 300;  // analog value above which alcohol is detected
 
 void setup() {
-  Serial.begin(115200);m
-  sim800.begin(9600); // Initialision
+  Serial.begin(115200);
+  sim800.begin(9600);
 
-  pinMode(capacitiveSensorPin, INPUT);
+  pinMode(helmetSensorPin, INPUT);
+  pinMode(alcoholSensorPin, INPUT);
   pinMode(relayPin, OUTPUT);
 
   Wire.begin();
-  mpu.begin(MPU6050_SCALE_2000DPS, MPU6050_RANGE_16G); 
+  mpu.begin(MPU6050_SCALE_2000DPS, MPU6050_RANGE_16G);
 }
 
 void loop() {
-  // Helmet Detection
-  helmetWorn = digitalRead(capacitiveSensorPin);
-  if (helmetWorn) {
-    digitalWrite(relayPin, HIGH); // this allows vehicle ignition
-  } else {
-    digitalWrite(relayPin, LOW); // this prevents the vehicle ignition
-  }
+  bool helmetWorn = digitalRead(helmetSensorPin);
+  int alcoholValue = analogRead(alcoholSensorPin);
 
-  // Fall Detection
+  Serial.print("Helmet worn: ");
+  Serial.println(helmetWorn ? "Yes" : "No");
+
+  Serial.print("Alcohol level: ");
+  Serial.println(alcoholValue);
+
+  bool scooterOn = helmetWorn && alcoholValue < alcoholThreshold;
+  digitalWrite(relayPin, scooterOn ? HIGH : LOW);
+
+  Serial.print("Scooter state: ");
+  Serial.println(scooterOn ? "ON" : "OFF");
+
   Vector normAccel = mpu.readNormalizeAccel();
-  float accelMagnitude = sqrt(sq(normAccel.XAxis) + sq(normAccel.YAxis) + sq(normAccel.ZAxis));
+  float accelMag = sqrt(sq(normAccel.XAxis) + sq(normAccel.YAxis) + sq(normAccel.ZAxis));
+  Serial.print("Accel magnitude: ");
+  Serial.println(accelMag);
 
-  if (accelMagnitude > fallThreshold) {
+  if (accelMag > crashThreshold) {
+    Serial.println("Crash detected. Calling emergency number...");
     sendEmergencyCall();
   }
 
-  delay(500);
+  delay(1000);
 }
 
 void sendEmergencyCall() {
-  // Initiates a call via the SIM800L module
-  sim800.println("ATD+911;"); //this is currently bulit for the US so we are using the emergency number 911. for other countries you have to chang e the number
-  delay(10000);               
-  sim800.println("ATH");      // hang up the call
+  sim800.println("ATD+911;");
+  delay(10000);
+  sim800.println("ATH");
+  Serial.println("Call ended");
 }
