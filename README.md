@@ -8,18 +8,11 @@ NeuroShield is a simple Arduino-based prototype that demonstrates basic helmet d
 - **Fall detection** via an MPU6050 accelerometer/gyroscope. When a large acceleration is detected an emergency call is placed using the SIM800 module.
 - **Emergency call** logic configured for `911` by default. Adjust the phone number in the code for your region.
 
-## Getting started
+## Achievements
 
-1. Open the `code` file in the Arduino IDE. You may rename it to `NeuroShield.ino` if preferred.
-2. Install the required libraries:
-   - `MPU6050` library
-   - `SoftwareSerial` (usually included with the Arduino core)
-3. Connect the hardware:
-   - MPU6050 sensor to the I2C pins
-   - Capacitive helmet sensor to digital pin 2
-   - Relay to digital pin 4
-   - SIM800 module to pins 10 (RX) and 11 (TX)
-4. Upload the sketch to your Arduino-compatible board.
+- Top 10 at CodePi 2025
+- Winner of ByteBash
+
 
 ## Notes
 
